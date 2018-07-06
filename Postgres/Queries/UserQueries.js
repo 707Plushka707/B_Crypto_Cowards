@@ -19,22 +19,22 @@ const log_through = data => {
   return data
 }
 
-exports.retrieve_staff_profile = (req, res, next) => {
+exports.retrieve_user_profile = (req, res, next) => {
   const info = req.body
-  const staff_id = info.staff_id
+  const user_id = info.user_id
   const profile = info.profile
   // console.log(profile)
   // res.json({
   //   message: 'hello'
   // })
-  get_staff_profile(staff_id)
-  .then((staffData) => {
-    // console.log(staffData)
-    if (staffData.rowCount === 0) {
+  get_user_profile(user_id)
+  .then((userData) => {
+    // console.log(userData)
+    if (userData.rowCount === 0) {
       console.log('0')
-      return insert_staff_profile(staff_id, profile)
+      return insert_user_profile(user_id, profile)
       .then((data) => {
-        return get_staff_profile(staff_id)
+        return get_user_profile(user_id)
       })
       .then((data) => {
         res.json({
@@ -48,7 +48,7 @@ exports.retrieve_staff_profile = (req, res, next) => {
       })
     } else {
       console.log('1')
-      get_staff_profile(staff_id)
+      get_user_profile(user_id)
       .then((data) => {
         res.json({
           new_entry: false,
@@ -62,16 +62,13 @@ exports.retrieve_staff_profile = (req, res, next) => {
   })
 }
 
-const get_staff_profile = (staff_id) => {
+const get_user_profile = (user_id) => {
   const p = new Promise((res, rej) => {
-    const values = [staff_id]
+    const values = [user_id]
 
-    const queryString = `SELECT a.staff_id, a.first_name, a.last_name, a.email, a.phone,
-                                b.corporation_id
-                           FROM staff a
-                           LEFT OUTER JOIN corporation_staff b
-                             ON a.staff_id = b.staff_id
-                          WHERE a.staff_id = $1`
+    const queryString = `SELECT user_id, first_name, last_name, email
+                           FROM users
+                           WHERE users.user_id = $1`
 
     query(queryString, values, (err, results) => {
       if (err) {
@@ -84,9 +81,9 @@ const get_staff_profile = (staff_id) => {
   return p
 }
 
-exports.updateHistoryIdForStaff = function(staff_id, historyId) {
+exports.updateHistoryIdForuser = function(user_id, historyId) {
   const p = new Promise((res, rej) => {
-    const values = [staff_id, historyId]
+    const values = [user_id, historyId]
     let update_history_id = `UPDATE google_refresh_tokens SET history_id = $2 WHERE aws_identity_id = $1 `
 
     return query(update_history_id, values)
@@ -102,13 +99,13 @@ exports.updateHistoryIdForStaff = function(staff_id, historyId) {
   return p
 }
 
-exports.grab_refresh_token = function(staff_id) {
+exports.grab_refresh_token = function(user_id) {
   const p = new Promise((res, rej) => {
-    const values = [staff_id]
+    const values = [user_id]
     const grab_token = `SELECT a.aws_identity_id, a.google_identity_id, a.google_access_token, a.google_refresh_token, a.created_at, a.expires_at, a.history_id,
-                               b.staff_id, b.first_name, b.last_name, b.email, b.phone
+                               b.user_id, b.first_name, b.last_name, b.email, b.phone
                           FROM google_refresh_tokens a
-                          INNER JOIN staff b ON a.aws_identity_id = b.staff_id
+                          INNER JOIN user b ON a.aws_identity_id = b.user_id
                           WHERE a.aws_identity_id = $1 ORDER BY a.created_at DESC LIMIT 1`
 
     return query(grab_token, values)
@@ -123,11 +120,11 @@ exports.grab_refresh_token = function(staff_id) {
   return p
 }
 
-const insert_staff_profile = (staff_id, profile) => {
+const insert_user_profile = (user_id, profile) => {
   const p = new Promise((res, rej) => {
-    const values = [staff_id, profile.first_name, profile.last_name, profile.email]
+    const values = [user_id, profile.first_name, profile.last_name, profile.email]
 
-    let insert_profile = `INSERT INTO staff (staff_id, first_name, last_name, email) VALUES ($1, $2, $3, $4)`
+    let insert_profile = `INSERT INTO users (user_id, first_name, last_name, email) VALUES ($1, $2, $3, $4)`
 
     query(insert_profile, values, (err, results) => {
       if (err) {
@@ -140,13 +137,13 @@ const insert_staff_profile = (staff_id, profile) => {
   return p
 }
 
-exports.update_refresh_token = function(data, staff_id) {
+exports.update_refresh_token = function(data, user_id) {
   console.log('========== update_refresh_token ===========')
-  console.log('staff_id: ', staff_id)
+  console.log('user_id: ', user_id)
   console.log(data)
   const p = new Promise((res, rej) => {
     const expires_at = new Date().getTime() + (data.expires_in*1000)
-    const values = [staff_id, data.access_token, expires_at]
+    const values = [user_id, data.access_token, expires_at]
 
     let insert_profile = `UPDATE google_refresh_tokens SET google_access_token = $2, expires_at = $3 WHERE aws_identity_id = $1`
 

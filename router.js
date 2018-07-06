@@ -7,12 +7,10 @@ const originCheck = require('./auth/originCheck').originCheck
 // routes
 const Test = require('./routes/test_routes')
 const AdsRoutes = require('./routes/ads_routes')
-const AssistantRoutes = require('./routes/assistant_routes')
 // const GoogleRoutes = require('./routes/google_routes')
 // const UserRoutes = require('./routes/user_routes')
-// const CorpRoutes = require('./routes/corp_routes')
 // const EmailRoutes = require('./routes/email_routes')
-// const UserQueries = require('./Postgres/Queries/UserQueries')
+const UserQueries = require('./Postgres/Queries/UserQueries')
 
 // bodyParser attempts to parse any request into JSON format
 const json_encoding = bodyParser.json({type:'*/*'})
@@ -27,20 +25,13 @@ module.exports = function(app){
 	// ads routes
 	app.post('/get_ads', [json_encoding, originCheck, Google_JWT_Check], AdsRoutes.get_ads)
 
-	// assistant routes
-	app.post('/retrieve_assistant_profile', [json_encoding, originCheck, Google_JWT_Check], AssistantRoutes.retrieve_assistant_profile)
-	app.post('/retrieve_assistant_profile_by_email', [json_encoding, originCheck, Google_JWT_Check], AssistantRoutes.retrieve_assistant_profile_by_email)
-
 	// app.post('/auth_test', [json_encoding, originCheck, Google_JWT_Check], Test.auth_test)
 	//
+
 	// // auth
 	// app.post('/initial_google_auth', [json_encoding, originCheck, Google_JWT_Check], GoogleRoutes.initial_google_auth)
-	// app.post('/retrieve_staff_profile', [json_encoding, originCheck, Google_JWT_Check], UserQueries.retrieve_staff_profile)
+	app.post('/retrieve_user_profile', [json_encoding, originCheck, Google_JWT_Check], UserQueries.retrieve_user_profile)
 	// app.post('/watch_route', [json_encoding, originCheck], EmailRoutes.watch_route)
-	//
-	// // corp
-	// app.post('/get_corporation_profile', [json_encoding, originCheck, Google_JWT_Check], CorpRoutes.get_corporation_profile)
-	// app.post('/create_corporation', [json_encoding, originCheck, Google_JWT_Check], CorpRoutes.create_corporation)
 
 	// email
 	// app.post('/get_recent_emails', [json_encoding, originCheck], EmailRoutes.get_recent_emails)
