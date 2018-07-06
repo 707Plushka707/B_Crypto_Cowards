@@ -57,9 +57,9 @@ if (process.env.NODE_ENV === 'production') {
 } else if (process.env.NODE_ENV === 'development') {
   // instantiate the SSL certificate necessary for HTTPS
   const options = {
-      ca: fs.readFileSync('./credentials/development/renthero_host.ca-bundle'),
-      key: fs.readFileSync('./credentials/development/renthero_host.key'),
-      cert: fs.readFileSync('./credentials/development/renthero_host.crt'),
+      ca: fs.readFileSync('./credentials/development/example_SSL_cert.ca-bundle'),
+      key: fs.readFileSync('./credentials/development/example_SSL_cert.key'),
+      cert: fs.readFileSync('./credentials/development/example_SSL_cert.crt'),
       requestCert: false,
       rejectUnauthorized: false
   }

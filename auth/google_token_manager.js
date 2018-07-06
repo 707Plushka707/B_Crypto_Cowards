@@ -9,13 +9,13 @@ const fs = require('fs')
 
 
 // get the access token
-exports.grab_access_token = function(staff_id) {
+exports.grab_access_token = function(user_id) {
   const p = new Promise((res, rej) => {
     let refreshToken = ''
     let user_email = ''
-    console.log(staff_id)
+    console.log(user_id)
     // query db for a refresh token corresponding to this user's IdentityId
-    grab_refresh_token(staff_id)
+    grab_refresh_token(user_id)
       .then((data) => {
         console.log('------------ grab_refresh_token -------------')
         console.log(data)
@@ -23,8 +23,8 @@ exports.grab_access_token = function(staff_id) {
         refreshToken = google_refresh_token
         user_email = email
         if (new Date().getTime() > expires_at) {
-          // grabs the latest row for this staff_id: { aws_identity_id, google_identity_id, google_refresh_token, }
-          return exchange_refresh_for_access_token(refreshToken, staff_id)
+          // grabs the latest row for this user_id: { aws_identity_id, google_identity_id, google_refresh_token, }
+          return exchange_refresh_for_access_token(refreshToken, user_id)
         } else {
           return Promise.resolve(data)
         }
@@ -33,7 +33,7 @@ exports.grab_access_token = function(staff_id) {
         console.log('------------ grab_access_token SUCCESS -------------')
         // console.log(access_token)
         res({
-          user_id: staff_id,
+          user_id: user_id,
           user_email: email,
           refresh_token: google_refresh_token,
           access_token: google_access_token,
@@ -50,7 +50,7 @@ exports.grab_access_token = function(staff_id) {
 }
 
 // previously used to initiate the google api. instead we use a specific library to do GMAIL. we might use this OAuth2Client in the future
-exports.getOAuth2Client = function(staff_id) {
+exports.getOAuth2Client = function(user_id) {
   const self = this
   const p = new Promise((res, rej) => {
     fs.readFile('credentials/'+process.env.NODE_ENV+'/google_server_oauth.json', (err, content) => {
@@ -65,7 +65,7 @@ exports.getOAuth2Client = function(staff_id) {
         creds.installed.client_secret,
         creds.installed.redirect_uris[0]
       )
-      exports.grab_access_token(staff_id)
+      exports.grab_access_token(user_id)
         .then((access_token) => {
           console.log(access_token)
           authClient.credentials = { access_token: access_token }
@@ -107,7 +107,7 @@ exports.exchange_code_for_refresh_token = function(one_time_code) {
 }
 
 // get a refresh token using a one-time-code from the user's initial log in
-const exchange_refresh_for_access_token = function(refresh_token, staff_id) {
+const exchange_refresh_for_access_token = function(refresh_token, user_id) {
   console.log('------------ exchange_refresh_for_access_token -------------')
   const p = new Promise((res, rej) => {
     axios.post(`https://www.googleapis.com/oauth2/v4/token`, querystring.stringify({
@@ -121,10 +121,10 @@ const exchange_refresh_for_access_token = function(refresh_token, staff_id) {
         }
       })
       .then((data) => {
-        return update_refresh_token(data.data, staff_id)
+        return update_refresh_token(data.data, user_id)
       })
       .then((data) => {
-        return grab_refresh_token(staff_id)
+        return grab_refresh_token(user_id)
       })
       .then((data) => {
         console.log(data)

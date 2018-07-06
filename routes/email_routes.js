@@ -5,12 +5,12 @@ const listLabels = require('../api/email_api').listLabels
 const grabEmail = require('../api/email_api').grabEmail
 const grabThreads = require('../api/email_api').grabThreads
 const getThread = require('../api/email_api').getThread
-const updateHistoryIdForStaff = require('../Postgres/Queries/UserQueries').updateHistoryIdForStaff
+const updateHistoryIdForuser = require('../Postgres/Queries/UserQueries').updateHistoryIdForuser
 const CHAT_MS = require('./API_URLS').CHAT_MS
 
 // POST /list_email_labels
 exports.list_email_labels = function(req, res, next){
-  getOAuth2Client('staff_id')
+  getOAuth2Client('user_id')
     .then((authClient) => {
       return listLabels(authClient)
     })
@@ -23,11 +23,11 @@ exports.list_email_labels = function(req, res, next){
 exports.watch_route = function(req, res, next) {
   const user_id = req.body.user_id
   let token = ''
-  let staff_id = ''
+  let user_id = ''
   grab_access_token(user_id)
     .then(({ access_token, user_id }) => {
       token = access_token
-      staff_id = user_id
+      user_id = user_id
       return axios.post(`https://www.googleapis.com/gmail/v1/users/me/watch`, {
           labelIds: ['INBOX'],
           topicName: 'projects/renthero-landlor-1522290344318/topics/RentHero-Landlord-Email-Received'
@@ -40,7 +40,7 @@ exports.watch_route = function(req, res, next) {
     .then((data) => {
       console.log('================== watch_route results =================')
       console.log(data.data)
-      return updateHistoryIdForStaff(user_id, data.data.historyId)
+      return updateHistoryIdForuser(user_id, data.data.historyId)
     })
     .then((data) => {
       res.json({
@@ -51,7 +51,7 @@ exports.watch_route = function(req, res, next) {
       // return axios.post(
       //   `${CHAT_MS}/save_relevant_past_emails`,
       //   {
-      //     user_id: staff_id
+      //     user_id: user_id
       //   },
       //   {
       //     headers: {
@@ -76,7 +76,7 @@ exports.watch_route = function(req, res, next) {
 // POST /pull_changes
 exports.pull_changes = function(req, res, next) {
   let token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then(({access_token}) => {
       token = access_token
       const subscription = 'projects/renthero-landlor-1522290344318/subscriptions/Subscribe-To-New-Emails'
@@ -117,7 +117,7 @@ exports.pull_changes = function(req, res, next) {
 // POST /list_recent_emails
 exports.list_recent_emails = function(req, res, next) {
   let token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then(({access_token}) => {
       token = access_token
       return axios.get(`https://www.googleapis.com/gmail/v1/users/me/messages`, {
@@ -139,7 +139,7 @@ exports.list_recent_emails = function(req, res, next) {
 // POST /get_recent_emails
 exports.get_recent_emails = function(req, res, next) {
   let token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then(({ access_token }) => {
       token = access_token
       return axios.get(`https://www.googleapis.com/gmail/v1/users/me/messages`, {
@@ -161,7 +161,7 @@ exports.get_recent_emails = function(req, res, next) {
 // POST /get_email
 exports.get_email = function(req, res, next) {
   let access_token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then((token) => {
       access_token = token
       return grabEmail(req.body.email_id, access_token)
@@ -180,7 +180,7 @@ exports.get_email = function(req, res, next) {
 // POST /get_threads
 exports.get_threads = function(req, res, next) {
   let token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then(({ access_token }) => {
       token = access_token
       return grabThreads(token)
@@ -199,7 +199,7 @@ exports.get_threads = function(req, res, next) {
 // POST /get_thread
 exports.get_thread = function(req, res, next) {
   let token = ''
-  grab_access_token('staff_id')
+  grab_access_token('user_id')
     .then((access_token) => {
       token = access_token
       return getThread(req.body.thread_id, token)
