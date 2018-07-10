@@ -11,7 +11,10 @@ const AdsRoutes = require('./routes/ads_routes')
 // const UserRoutes = require('./routes/user_routes')
 // const EmailRoutes = require('./routes/email_routes')
 const UserQueries = require('./Postgres/Queries/UserQueries')
-
+const Binance = require('./api/Binance/binance_api')
+const AlgoQueries = require('./Postgres/Queries/AlgoQueries')
+const RoleQueries = require('./Postgres/Queries/RoleQueries')
+const FollowQueries = require('./Postgres/Queries/FollowQueries')
 // bodyParser attempts to parse any request into JSON format
 const json_encoding = bodyParser.json({type:'*/*'})
 // bodyParser attempts to parse any request into GraphQL format
@@ -33,8 +36,31 @@ module.exports = function(app){
 	app.post('/retrieve_user_profile', [json_encoding, originCheck, Google_JWT_Check], UserQueries.retrieve_user_profile)
 	// app.post('/watch_route', [json_encoding, originCheck], EmailRoutes.watch_route)
 
+	// Binance
+	app.post('/save_binance', [json_encoding, originCheck], Binance.save_binance)
+
+	//check if user is a coward
+	//app.post('/check_coward_exists', [json_encoding, originCheck, Google_JWT_Check], UserQueries.check_coward_exists)
+
+	//check if user is a pro
+	app.post('/check_account_role', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.check_account_role)
 	// email
-	// app.post('/get_recent_emails', [json_encoding, originCheck], EmailRoutes.get_recent_emails)
+
+	app.post('/add_coward', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.add_coward)
+
+	app.post('/add_pro', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.add_pro)
+
+	app.post('/add_algo', [json_encoding, originCheck, Google_JWT_Check], AlgoQueries.add_algo)
+
+	app.post('/get_user_algos', [json_encoding, originCheck, Google_JWT_Check], AlgoQueries.get_user_algos)
+
+	app.get('/get_all_algos', [json_encoding, originCheck, Google_JWT_Check], AlgoQueries.get_all_algos)
+
+	app.post('/add_follows', [json_encoding, originCheck, Google_JWT_Check], FollowQueries.add_follows)
+
+	app.post('/get_user_follows', [json_encoding, originCheck, Google_JWT_Check], FollowQueries.get_user_follows)
+
+	app.post('/delete_follows', [json_encoding, originCheck, Google_JWT_Check], FollowQueries.delete_follows)
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)

@@ -62,6 +62,8 @@ exports.retrieve_user_profile = (req, res, next) => {
   })
 }
 
+
+
 const get_user_profile = (user_id) => {
   const p = new Promise((res, rej) => {
     const values = [user_id]
@@ -69,7 +71,6 @@ const get_user_profile = (user_id) => {
     const queryString = `SELECT user_id, first_name, last_name, email
                            FROM users
                            WHERE users.user_id = $1`
-
     query(queryString, values, (err, results) => {
       if (err) {
         console.log(err)
@@ -80,6 +81,8 @@ const get_user_profile = (user_id) => {
   })
   return p
 }
+
+
 
 exports.updateHistoryIdForuser = function(user_id, historyId) {
   const p = new Promise((res, rej) => {
@@ -107,7 +110,6 @@ exports.grab_refresh_token = function(user_id) {
                           FROM google_refresh_tokens a
                           INNER JOIN user b ON a.aws_identity_id = b.user_id
                           WHERE a.aws_identity_id = $1 ORDER BY a.created_at DESC LIMIT 1`
-
     return query(grab_token, values)
     .then((data) => {
       res(data.rows[0])
@@ -123,9 +125,7 @@ exports.grab_refresh_token = function(user_id) {
 const insert_user_profile = (user_id, profile) => {
   const p = new Promise((res, rej) => {
     const values = [user_id, profile.first_name, profile.last_name, profile.email]
-
     let insert_profile = `INSERT INTO users (user_id, first_name, last_name, email) VALUES ($1, $2, $3, $4)`
-
     query(insert_profile, values, (err, results) => {
       if (err) {
         console.log(err)
