@@ -15,6 +15,7 @@ const Binance = require('./api/Binance/binance_api')
 const AlgoQueries = require('./Postgres/Queries/AlgoQueries')
 const RoleQueries = require('./Postgres/Queries/RoleQueries')
 const FollowQueries = require('./Postgres/Queries/FollowQueries')
+const Bot = require ('./Postgres/Queries/BotQueries')
 // bodyParser attempts to parse any request into JSON format
 const json_encoding = bodyParser.json({type:'*/*'})
 // bodyParser attempts to parse any request into GraphQL format
@@ -37,8 +38,11 @@ module.exports = function(app){
 	// app.post('/watch_route', [json_encoding, originCheck], EmailRoutes.watch_route)
 
 	// Binance
-	app.post('/save_binance', [json_encoding, originCheck], Binance.save_binance)
+	app.post('/save_binance', [json_encoding, originCheck, Google_JWT_Check], Binance.save_binance)
 
+	app.post('/get_candlesticks', [json_encoding, originCheck, Google_JWT_Check], Binance.get_candlesticks)
+
+	app.post('/get_balance', [json_encoding, originCheck, Google_JWT_Check], Binance.get_balance)
 	//check if user is a coward
 	//app.post('/check_coward_exists', [json_encoding, originCheck, Google_JWT_Check], UserQueries.check_coward_exists)
 
@@ -61,6 +65,16 @@ module.exports = function(app){
 	app.post('/get_user_follows', [json_encoding, originCheck, Google_JWT_Check], FollowQueries.get_user_follows)
 
 	app.post('/delete_follows', [json_encoding, originCheck, Google_JWT_Check], FollowQueries.delete_follows)
+
+	app.post('/get_portfolio', [json_encoding, originCheck, Google_JWT_Check], Bot.get_portfolio)
+
+	app.post('/save_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.save_bot)
+
+	app.post('/get_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.get_bot)
+
+	// app.post('/activate_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.activate_bot)
+
+
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)
