@@ -11,7 +11,7 @@ const binance = new Binance().options({
 
 const newFunc = () => {
   const p = new Promise((res, rej) => {
-    binance.candlesticks("BTCUSDT", "5m", (error, ticks, symbol) => {
+    binance.candlesticks("ETHUSDT", "5m", (error, ticks, symbol) => {
         if (error) {
           rej(error)
         }

@@ -23,8 +23,11 @@ exports.get_user_follows = (req, res, next) => {
     const info = req.body
     const values = [info.user_id]
     console.log(info.user_id)
-    const queryString = `SELECT * FROM follows
-                            WHERE follows.user_id = $1`
+    const queryString = `SELECT a.follow_id, b.user_id, a.algo_id, b.algo_name
+                            FROM follows a
+                            LEFT OUTER JOIN algos b
+                            ON a.algo_id = b.algo_id
+                            WHERE a.user_id = $1`
     query(queryString, values, (err, results) => {
       if (err) {
         console.log(err)
