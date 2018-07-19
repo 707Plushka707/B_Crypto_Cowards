@@ -112,7 +112,7 @@ exports.get_bot = function (req, res, next) {
   const values = [info.user_id]
   console.log('==<<<<===>>>>>=====>')
   console.log(info.user_id)
-  const queryString = `SELECT a.bot_id, a.algo_id, a.user_id, b.algo_name, b.algo
+  const queryString = `SELECT a.bot_id, a.algo_id, a.user_id, b.algo_name, b.algo, b.algo_type
                           FROM bots a
                           LEFT OUTER JOIN algos b
                           ON a.algo_id = b.algo_id
@@ -126,7 +126,16 @@ exports.get_bot = function (req, res, next) {
     console.log(results)
     res.json({
       message: 'Success',
-      bot: results.rows[0]
+      bot: results.rows.map(row => {
+        return {
+          bot_id: row.bot_id,
+          algo_id: row.algo_id,
+          user_id: row.user_id,
+          algo_name: row.algo_name,
+          algo: JSON.parse(row.algo),
+          algo_type: JSON.parse(row.algo_type)
+        }
+      })
     })
   })
 }

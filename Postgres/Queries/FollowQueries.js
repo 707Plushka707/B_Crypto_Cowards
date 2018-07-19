@@ -23,7 +23,7 @@ exports.get_user_follows = (req, res, next) => {
     const info = req.body
     const values = [info.user_id]
     console.log(info.user_id)
-    const queryString = `SELECT a.follow_id, b.user_id, a.algo_id, b.algo_name
+    const queryString = `SELECT a.follow_id, b.user_id, a.algo_id, b.algo_name, b.algo_type, b.algo
                             FROM follows a
                             LEFT OUTER JOIN algos b
                             ON a.algo_id = b.algo_id
@@ -37,7 +37,16 @@ exports.get_user_follows = (req, res, next) => {
       console.log(results)
       res.json({
         message: 'Success',
-        user_follows: results.rows
+        user_follows: results.rows.map((row) => {
+          return {
+            follow_id: row.follow_id,
+            user_id: row.user_id,
+            algo_id: row.algo_id,
+            algo_name: row.algo_name,
+            algo_type: JSON.parse(row.algo_type),
+            algo: JSON.parse(row.algo)
+          }
+        })
       })
     })
 }
