@@ -77,7 +77,79 @@ exports.get_balance = function(req, res, next) {
 
       }
     })
+}
 
+exports.get_bal = function(req) {
+  const p = new Promise((res, rej) => {
+    console.log('backhit')
+    const info = req.body
+    const value = [info.user_id]
+    console.log(info.user_id)
+    const queryString = 'SELECT * FROM binance WHERE user_id = $1'
+    getApi(value[0])
+      .then((data) => {
+
+        if (data) {
+          console.log(data.api_key)
+          const binance = new Binance().options({
+            APIKEY: data.api_key,
+            APISECRET: data.api_secret,
+            useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
+            test: true
+          })
+          global.ticker = {}
+          binance.prices((error, ticker) => {
+          	//console.log("prices()", ticker)
+          	for ( let symbol in ticker ) {
+          		global.ticker[symbol] = parseFloat(ticker[symbol])
+          	}
+          	binance.balance((error, balances) => {
+          		let balance = {}
+          		for ( let asset in balances ) {
+          			let obj = balances[asset]
+          			obj.available = parseFloat(obj.available)
+          			//if ( !obj.available ) continue // only show items with balances
+          			obj.onOrder = parseFloat(obj.onOrder)
+          			obj.btcValue = 0
+          			obj.btcTotal = 0
+                obj.usdValue = 0
+          			if ( asset == 'BTC' ) obj.btcValue = obj.available
+          			else if ( asset == 'USDT' ) obj.btcValue = obj.available / global.ticker.BTCUSDT
+          			else obj.btcValue = obj.available * global.ticker[asset+'BTC']
+
+          			if ( asset == 'BTC' ) obj.btcTotal = obj.available + obj.onOrder
+          			else if ( asset == 'USDT' ) obj.btcTotal = (obj.available + obj.onOrder) / global.ticker.BTCUSDT
+          			else obj.btcTotal = (obj.available + obj.onOrder) * global.ticker[asset+'BTC']
+
+                if ( asset == 'BTC' ) obj.usdValue = obj.available * global.ticker.BTCUSDT
+          			else if ( asset == 'USDT' ) obj.usdValue = obj.available
+          			else obj.usdValue = obj.available * global.ticker[asset+'BTC'] * global.ticker.BTCUSDT
+
+          			if ( isNaN(obj.btcValue) ) obj.btcValue = 0
+          			if ( isNaN(obj.btcTotal) ) obj.btcTotal = 0
+                if ( isNaN(obj.usdValue) ) obj.usdValue = 0
+          			balance[asset] = obj
+          		}
+          		//fs.writeFile(global.path+"balance.json", JSON.stringify(balance, null, 4), (err)=>{})
+          		console.log(balance)
+              const holdings = Object.keys(balance).filter(bal => parseFloat(balance[bal].btcValue)).map(bal => [bal, balance[bal].available])
+              console.log(holdings)
+              res({
+                message: 'success',
+                balance: holdings
+              })
+          	})
+          })
+        }
+        else {
+          res({
+            message: 'Api Keys DNE'
+          })
+
+        }
+      })
+  })
+  return p
 }
 
 const getApi = (user_id) => {
@@ -171,4 +243,117 @@ exports.get_candlesticks = function(req, res, next) { //get all post info for li
         time: date
       })
     })
+}
+
+exports.get_min_order = () => {
+  const p = new Promise((res, rej) => {
+    const binance = new Binance().options({
+      APIKEY: '<key>',
+      APISECRET: '<secret>',
+      // useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
+      test: true
+    })
+    binance.exchangeInfo(function(error, data) {
+    	let minimums = {}
+    	for ( let obj of data.symbols ) {
+    		let filters = {}
+    		for ( let filter of obj.filters ) {
+    			if ( filter.filterType == "LOT_SIZE" ) {
+    				filters.minQty = parseFloat(filter.minQty)
+    				filters.maxQty = parseFloat(filter.maxQty)
+    			}
+    		}
+    		minimums[obj.symbol] = filters
+    	}
+    	global.filters = minimums
+      res(minimums)
+  	//fs.writeFile("minimums.json", JSON.stringify(minimums, null, 4), function(err){});
+    })
+  })
+  return p
+}
+
+
+exports.market_buy = function(user_id, balance) { //get all post info for list
+  console.log('buyhit')
+  const prom = new Promise((res, rej) => {
+    getApi(user_id)
+      .then((data) => {
+        if (data !== false) {
+          console.log(data.api_key)
+          const binance = new Binance().options({
+            APIKEY: data.api_key,
+            APISECRET: data.api_secret,
+            useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
+          })
+          const buyit = balance.map((coin) => {
+            console.log('buying')
+            console.log(coin[0])
+            console.log(coin[1])
+            const p = new Promise((res, rej) => {
+              binance.marketBuy(coin[0], coin[1], (error, response) => {
+                console.log("Market buy response", response)
+                console.log("order id: " + response.orderId)
+                res()
+              })
+            })
+            return p
+          })
+          res(Promise.all(buyit))
+        }
+        else {
+          rej('broken')
+        }
+      })
+  })
+  return prom
+}
+
+exports.market_sell = function(user_id, balance) { //get all post info for list
+  console.log('sellhit')
+  const prom = new Promise((res, rej) => {
+    getApi(user_id)
+      .then((data) => {
+        if (data !== false) {
+          console.log(data.api_key)
+          const binance = new Binance().options({
+            APIKEY: data.api_key,
+            APISECRET: data.api_secret,
+            useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
+          })
+          const sellit = balance.map((coin) => {
+            console.log('selling')
+            console.log(coin[0])
+            const p = new Promise((res, rej) => {
+              binance.marketSell(`${coin[0]}BTC`, coin[1], (error, response) => {
+                console.log("Market Sell response", response)
+                console.log("order id: " + response.orderId)
+                res()
+              })
+            })
+            return p
+          })
+          res(Promise.all(sellit))
+        }
+        else {
+          rej('broken')
+        }
+      })
+  })
+  return prom
+}
+
+exports.get_market_prices = function() { //get all post info for list
+  const binance = new Binance().options({
+    APIKEY: '<key>',
+    APISECRET: '<secret>',
+    // useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
+    test: true
+  })
+  const p = new Promise((res, rej) => {
+    binance.bookTickers((error, ticker) => {
+      res(ticker)
+    })
+  })
+  return p
 }
