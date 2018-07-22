@@ -107,7 +107,7 @@ const check_bot_exists = (user_id) => {
   return p
 }
 
-exports.get_bot = function (req, res, next) {
+exports.get_bot = function (req, res, next) { //redo later
   const info = req.body
   const values = [info.user_id]
   console.log('==<<<<===>>>>>=====>')
@@ -138,6 +138,42 @@ exports.get_bot = function (req, res, next) {
       })
     })
   })
+}
+
+exports.get_bott = function (req) { //redo later
+  const p = new Promise((res, rej) => {
+    const info = req.body
+    const values = [info.user_id]
+    console.log('==<<<<===>>>>>=====>')
+    console.log(info.user_id)
+    const queryString = `SELECT a.bot_id, a.algo_id, a.user_id, b.algo_name, b.algo, b.algo_type
+                            FROM bots a
+                            LEFT OUTER JOIN algos b
+                            ON a.algo_id = b.algo_id
+                            WHERE a.user_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success',
+        bot: results.rows.map(row => {
+          return {
+            bot_id: row.bot_id,
+            algo_id: row.algo_id,
+            user_id: row.user_id,
+            algo_name: row.algo_name,
+            algo: JSON.parse(row.algo),
+            algo_type: JSON.parse(row.algo_type)
+          }
+        })
+      })
+    })
+  })
+  return p
 }
 
 exports.get_portfolio = function (req, res, next) {
