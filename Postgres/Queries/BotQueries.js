@@ -112,7 +112,7 @@ exports.get_bot = function (req, res, next) { //redo later
   const values = [info.user_id]
   console.log('==<<<<===>>>>>=====>')
   console.log(info.user_id)
-  const queryString = `SELECT a.bot_id, a.algo_id, a.user_id, b.algo_name, b.algo, b.algo_type
+  const queryString = `SELECT a.bot_id, a.algo_id, a.user_id, b.algo_name, b.algo, b.algo_type, a.active
                           FROM bots a
                           LEFT OUTER JOIN algos b
                           ON a.algo_id = b.algo_id
@@ -133,7 +133,8 @@ exports.get_bot = function (req, res, next) { //redo later
           user_id: row.user_id,
           algo_name: row.algo_name,
           algo: JSON.parse(row.algo),
-          algo_type: JSON.parse(row.algo_type)
+          algo_type: JSON.parse(row.algo_type),
+          active: row.active
         }
       })
     })
@@ -176,6 +177,109 @@ exports.get_bott = function (req) { //redo later
   return p
 }
 
+exports.get_bot_algos = () => {
+  const p = new Promise((res, rej) => {
+    const queryString = `SELECT a.algo, a.algo_type, b.bot_id, b.user_id, b.updated_at, b.active
+                          FROM bots b
+                          LEFT OUTER JOIN
+                          algos a
+                          ON a.algo_id = b.algo_id
+                          WHERE a.algo_id IN (SELECT algo_id FROM bots)`
+    query(queryString, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success',
+        all_algos: results.rows.map(row => {
+          return {
+            user_id: row.user_id,
+            algo: JSON.parse(row.algo),
+            algo_type: JSON.parse(row.algo_type),
+            bot_id: row.bot_id,
+            updated_at: row.updated_at,
+            active: row.active
+          }
+        })
+      })
+    })
+  })
+  return p
+}
+
+exports.set_updated_at = (botId) => {
+  const p = new Promise((res, rej) => {
+    console.log(botId)
+    const now = moment()
+    const values = [botId, now]
+    const queryString = `UPDATE bots
+                          SET updated_at = $2
+                          WHERE bot_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
+exports.set_active_bot = (botId) => {
+  const p = new Promise((res, rej) => {
+    console.log(botId)
+    const values = [botId]
+    const queryString = `UPDATE bots
+                          SET active = TRUE
+                          WHERE bot_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
+exports.set_deactive_bot = (botId) => {
+  const p = new Promise((res, rej) => {
+    console.log(botId)
+    const values = [botId]
+    console.log('deactivate ^')
+    const queryString = `UPDATE bots
+                          SET active = FALSE
+                          WHERE bot_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
+
+
 exports.get_portfolio = function (req, res, next) {
   console.log('backhit')
   const info = req.body
@@ -184,27 +288,4 @@ exports.get_portfolio = function (req, res, next) {
     .then((data) => {
       console.log(data)
     })
-
-  // console.log(info)
-  // const newFunc = () => {
-  //   const p = new Promise((res, rej) => {
-  //     binance.candlesticks(info.ticker, info.timeframe, (error, ticks, symbol) => {
-  //         if (error) {
-  //           rej(error)
-  //         }
-  //        res(ticks)
-  //     }, {limit: 3000})
-  //   })
-  //   return p
-  // }
-  // newFunc()
-  //   .then((data) => {
-  //     const close = data.map((day) => day[4])
-  //     console.log(close)
-  //     const date = data.map((day) => moment(day[0]).format('YYYY-MM-DD'))
-  //     res.json({
-  //       price: close,
-  //       time: date
-  //     })
-  //   })
 }

@@ -44,6 +44,7 @@ const check_algo_name_exists = (user_id, algo_name) => {
   return p
 }
 
+
 exports.get_all_algos = (req, res, next) => {
   const queryString = `SELECT * FROM algos`
   query(queryString, (err, results) => {

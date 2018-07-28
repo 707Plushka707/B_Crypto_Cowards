@@ -7,6 +7,8 @@ const { promisify } = Promise
 const uuid = require('uuid')
 const moment = require('moment')
 
+
+
 const binance = new Binance().options({
   APIKEY: 'V5ZFsjOUJyvbDubkbqheqFwMf21XwfOg4Etk7STmIFO1Xq8jSDTf0jtQYGl276y2',
   APISECRET: 'AL2GfNdmKCxunVGDK6xtHuc7GSdNjnxJk2JMRvpe3TVfshOCeYMKoRCo0NDS2x9H',
@@ -25,7 +27,6 @@ const newFunc = () => {
   })
     return p
 }
-
 
 let newStuff = []
 
