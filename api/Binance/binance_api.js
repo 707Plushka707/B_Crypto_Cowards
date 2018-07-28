@@ -88,7 +88,12 @@ exports.get_bal = function(req) {
     getApi(value[0])
       .then((data) => {
 
-        if (data) {
+        if (data == false) {
+          res({
+            message: 'Api Keys DNE'
+          })
+        }
+        else {
           console.log(data.api_key)
           const binance = new Binance().options({
             APIKEY: data.api_key,
@@ -140,12 +145,11 @@ exports.get_bal = function(req) {
           	})
           })
         }
-        else {
-          res({
-            message: 'Api Keys DNE'
-          })
-
-        }
+      })
+      .catch((err) => {
+        res({
+          message: 'Api Keys DNE'
+        })
       })
   })
   return p

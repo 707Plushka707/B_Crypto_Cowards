@@ -17,10 +17,13 @@ const RoleQueries = require('./Postgres/Queries/RoleQueries')
 const FollowQueries = require('./Postgres/Queries/FollowQueries')
 const Bot = require ('./Postgres/Queries/BotQueries')
 const Bots = require('./routes/bot_routes')
+const RebSched = require('./routes/rebalance_schedule')
+
 // bodyParser attempts to parse any request into JSON format
 const json_encoding = bodyParser.json({type:'*/*'})
 // bodyParser attempts to parse any request into GraphQL format
 // const graphql_encoding = bodyParser.text({ type: 'application/graphql' })
+
 
 module.exports = function(app){
 
@@ -74,9 +77,11 @@ module.exports = function(app){
 	app.post('/get_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.get_bot)
 
 	app.post('/activate_bot', [json_encoding, originCheck, Google_JWT_Check], Bots.activate_bot)
+
+	app.post('/deactivate_bot', [json_encoding, originCheck, Google_JWT_Check], Bots.deactivate_bot)
 	// app.post('/activate_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.activate_bot)
 
-
+	app.get('/check_rebalancing', [json_encoding, originCheck, Google_JWT_Check], RebSched.check_rebalancing)
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)
