@@ -57,8 +57,8 @@ exports.delete_follows = (req, res, next) => {
   console.log(info)
   const arrayOfPromises = info.follow_ids.map((follow_id) => {
     const p = new Promise((resolve, reject) => {
-      const values = [follow_id]
-      let queryString = `DELETE FROM follows WHERE follow_id = $1`
+      const values = [follow_id, info.user_id]
+      let queryString = `DELETE FROM follows WHERE follow_id = $1 AND user_id = $2`
       return query(queryString, values, (err, results) => {
         if (err) {
           console.log(err)

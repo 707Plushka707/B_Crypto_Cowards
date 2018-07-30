@@ -86,6 +86,29 @@ const delete_bot = (user_id) => {
   return p
 }
 
+exports.remove_user_bot = (user_id) => {
+  const p = new Promise((res, rej) => {
+    console.log(user_id)
+    const values = [user_id]
+    console.log('deactivate ^')
+    const queryString = `DELETE FROM bots
+                          WHERE user_id = $1
+                          AND active = FALSE`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
 const check_bot_exists = (user_id) => {
   const p = new Promise((res, rej) => {
     const values = [user_id]
@@ -168,6 +191,40 @@ exports.get_bott = function (req) { //redo later
             user_id: row.user_id,
             algo_name: row.algo_name,
             algo: JSON.parse(row.algo),
+            algo_type: JSON.parse(row.algo_type)
+          }
+        })
+      })
+    })
+  })
+  return p
+}
+
+exports.get_bot_times = function (req) { //redo later
+  const p = new Promise((res, rej) => {
+    const info = req.body
+    const values = [info.user_id]
+    console.log('==<<<<===>>>>>=====>')
+    console.log(info.user_id)
+    const queryString = `SELECT a.updated_at, a.active, b.algo_name, b.algo_type
+                            FROM bots a
+                            LEFT OUTER JOIN algos b
+                            ON a.algo_id = b.algo_id
+                            WHERE a.user_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success',
+        bot: results.rows.map(row => {
+          return {
+            updated_at: row.updated_at,
+            active: row.active,
+            algo_name: row.algo_name,
             algo_type: JSON.parse(row.algo_type)
           }
         })
@@ -277,8 +334,6 @@ exports.set_deactive_bot = (botId) => {
   })
   return p
 }
-
-
 
 exports.get_portfolio = function (req, res, next) {
   console.log('backhit')

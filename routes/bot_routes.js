@@ -8,6 +8,7 @@ const get_top_ranks = require('../api/Cmc/cmc').get_top_ranks
 const set_active_bot = require('../Postgres/Queries/BotQueries').set_active_bot
 const set_deactive_bot = require('../Postgres/Queries/BotQueries').set_deactive_bot
 const set_updated_at = require('../Postgres/Queries/BotQueries').set_updated_at
+const remove_user_bot = require('../Postgres/Queries/BotQueries').remove_user_bot
 
 exports.deactivate_bot = (req, res, next) => {
   const info = req.body
@@ -15,6 +16,15 @@ exports.deactivate_bot = (req, res, next) => {
   set_deactive_bot(info.bot_id)
     .then(() => {
       res.json('deactivated')
+    })
+}
+
+exports.delete_user_bot = (req, res, next) => {
+  const info = req.body
+  console.log('hit')
+  remove_user_bot(info.user_id)
+    .then(() => {
+      res.json('deleted')
     })
 }
 

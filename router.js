@@ -13,6 +13,7 @@ const AdsRoutes = require('./routes/ads_routes')
 const UserQueries = require('./Postgres/Queries/UserQueries')
 const Binance = require('./api/Binance/binance_api')
 const AlgoQueries = require('./Postgres/Queries/AlgoQueries')
+const ApiQueries = require('./Postgres/Queries/ApiQueries')
 const RoleQueries = require('./Postgres/Queries/RoleQueries')
 const FollowQueries = require('./Postgres/Queries/FollowQueries')
 const Bot = require ('./Postgres/Queries/BotQueries')
@@ -79,9 +80,17 @@ module.exports = function(app){
 	app.post('/activate_bot', [json_encoding, originCheck, Google_JWT_Check], Bots.activate_bot)
 
 	app.post('/deactivate_bot', [json_encoding, originCheck, Google_JWT_Check], Bots.deactivate_bot)
+
+	app.post('/delete_user_bot', [json_encoding, originCheck, Google_JWT_Check], Bots.delete_user_bot)
+
 	// app.post('/activate_bot', [json_encoding, originCheck, Google_JWT_Check], Bot.activate_bot)
+	app.post('/user_api_exists', [json_encoding, originCheck, Google_JWT_Check], ApiQueries.user_api_exists)
+
+	app.post('/remove_user_api', [json_encoding, originCheck, Google_JWT_Check], ApiQueries.remove_user_api)
 
 	app.get('/check_rebalancing', [json_encoding, originCheck, Google_JWT_Check], RebSched.check_rebalancing)
+
+	app.post('/get_rebalance_time', [json_encoding, originCheck, Google_JWT_Check], RebSched.get_rebalance_time)
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)
