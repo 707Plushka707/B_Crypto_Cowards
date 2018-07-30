@@ -38,3 +38,52 @@ exports.get_user_api = (req, res, next) => {
       })
     })
 }
+
+
+exports.remove_user_api = (req, res, next) => {
+    const info = req.body
+    const values = [info.user_id]
+    console.log(info.user_id)
+    const queryString = `DELETE FROM binance
+                            WHERE binance.user_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      res.json({
+        message: 'Success',
+      })
+      console.log('==========>')
+      console.log(results)
+
+    })
+}
+
+exports.user_api_exists = (req, res, next) => {
+    const info = req.body
+    const values = [info.user_id]
+    console.log(info.user_id)
+    const queryString = `SELECT * FROM binance
+                            WHERE binance.user_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      if (results.rows.length > 0) {
+        res.json({
+          message: 'Success',
+          api_exists: true
+        })
+      } else {
+        res.json({
+          message: 'Success',
+          api_exists: false
+        })
+      }
+      console.log('==========>')
+      console.log(results)
+
+    })
+}

@@ -46,7 +46,7 @@ const check_algo_name_exists = (user_id, algo_name) => {
 
 
 exports.get_all_algos = (req, res, next) => {
-  const queryString = `SELECT * FROM algos`
+  const queryString = `SELECT * FROM algos WHERE public = TRUE`
   query(queryString, (err, results) => {
     if (err) {
       console.log(err)
@@ -103,8 +103,8 @@ exports.add_algo = (req, res, next) => {
   const algo_id = uuid()
   console.log(info.algo_type)
   console.log(info.algo)
-  const values = [algo_id, info.user_id, info.algo_name, JSON.stringify(info.algo_type), JSON.stringify(info.algo)]
-  const queryString = `INSERT INTO algos (algo_id, user_id, algo_name, algo_type, algo) VALUES ($1, $2, $3, $4, $5)`
+  const values = [algo_id, info.user_id, info.algo_name, JSON.stringify(info.algo_type), JSON.stringify(info.algo), info.public]
+  const queryString = `INSERT INTO algos (algo_id, user_id, algo_name, algo_type, algo, public) VALUES ($1, $2, $3, $4, $5, $6)`
 
   check_algo_name_exists(info.user_id, info.algo_name)
     .then((data) => {
