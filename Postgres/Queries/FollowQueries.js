@@ -19,6 +19,29 @@ const log_through = data => {
   return data
 }
 
+exports.get_algo_follows = (req, res, next) => {
+    const info = req.body
+    const values = [info.algo_id]
+    console.log(info.algo_id)
+    const p = new Promise((res,rej) => {
+      const queryString = `SELECT * FROM follows
+                              WHERE algo_id = $1`
+      query(queryString, values, (err, results) => {
+        if (err) {
+          console.log(err)
+          res.status(500).send(err)
+        }
+        console.log('==========>')
+        console.log(results)
+        res({
+          message: 'Success',
+          followers: results.rows
+          })
+        })
+    })
+    return p
+}
+
 exports.get_user_follows = (req, res, next) => {
     const info = req.body
     const values = [info.user_id]
