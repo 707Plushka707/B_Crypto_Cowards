@@ -13,11 +13,14 @@ const AdsRoutes = require('./routes/ads_routes')
 const UserQueries = require('./Postgres/Queries/UserQueries')
 const Binance = require('./api/Binance/binance_api')
 const AlgoQueries = require('./Postgres/Queries/AlgoQueries')
+
 const ApiQueries = require('./Postgres/Queries/ApiQueries')
 const RoleQueries = require('./Postgres/Queries/RoleQueries')
 const FollowQueries = require('./Postgres/Queries/FollowQueries')
 const Bot = require ('./Postgres/Queries/BotQueries')
 const Bots = require('./routes/bot_routes')
+
+const Algos = require('./routes/algo_routes')
 const RebSched = require('./routes/rebalance_schedule')
 
 // bodyParser attempts to parse any request into JSON format
@@ -91,6 +94,8 @@ module.exports = function(app){
 	app.get('/check_rebalancing', [json_encoding, originCheck, Google_JWT_Check], RebSched.check_rebalancing)
 
 	app.post('/get_rebalance_time', [json_encoding, originCheck, Google_JWT_Check], RebSched.get_rebalance_time)
+
+	app.post('/delete_algo', [json_encoding, originCheck, Google_JWT_Check], Algos.delete_algo)
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)

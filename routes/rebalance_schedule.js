@@ -21,19 +21,23 @@ exports.check_rebalancing = function(req, res, next){ //run every 30 mins
       })
     })
 
-  // TO DO: test rebalance with very small amount of cryptos in account (currently catches no balance, try if will work on tiny ballance)
-  //        Set this function to run every x mins
-  //        Encrypt all API data + find alternative solutions
-  //        (done) Enable 'edit' buttons to work on everything
+  // TO DO:
+
+
   //        Set prod envi
+
   //        limit input lengths
-  //        Find solution: API keys in DB, but removed from Binance
-  //        Strategy table: shorter and cleaner username
-  //        (done) implement %day,week,month
-  //        make mobile friendly
+
   //        'remove' buttons - Created: remove from every table, send notification to users
-  //        pull from cmc every 30mins (intervals)
+
   //        test test test test test
+  //        Loading visual glitchy
+  //        refresh tokens
+  //        Set this function to run every x mins
+  //        Find solution: API keys in DB, but removed from Binance
+  //        Encrypt all API data + find alternative solutions
+  //        test rebalance with very small amount of cryptos in account (currently catches no balance, try if will work on tiny ballance)
+  //        make mobile friendly
 }
 
 exports.get_rebalance_time = function (req, res, next) {
@@ -42,14 +46,15 @@ exports.get_rebalance_time = function (req, res, next) {
       console.log(data.bot)
       if (data.bot.length > 0) {
         const bot = data.bot[0]
+        console.log(bot.active)
         if (bot.active && bot.algo_type.type == 'Rebalance' && bot.algo_type.reb_type == 'rank') {
-          console.log(bot.updated_at)
-          console.log(bot.algo_type.reb_day * 24)
-          console.log(moment().diff(moment(bot.updated_at), 'hours'))
-          console.log(moment(bot.updated_at).diff(moment(), 'hours'))
+          // console.log(bot.updated_at)
+          // console.log(bot.algo_type.reb_day * 24)
+          // console.log(moment().diff(moment(bot.updated_at), 'hours'))
+          // console.log(moment(bot.updated_at).diff(moment(), 'hours'))
           const percent = ((bot.algo_type.reb_day * 1440 - moment(bot.updated_at).diff(moment(), 'minutes')) / (bot.algo_type.reb_day * 1440)) * 100
           const dateis = bot.algo_type.reb_day * 1440 - moment(bot.updated_at).diff(moment(), 'minutes')
-          console.log(percent)
+          // console.log(percent)
           res.json({
             message: 'Success',
             percent: Math.round(percent),
@@ -57,9 +62,7 @@ exports.get_rebalance_time = function (req, res, next) {
           })
         }
       } else {
-        res.json({
-          message: 'No active rebalancing bot'
-        })
+        null
       }
     })
 }
