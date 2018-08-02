@@ -15,11 +15,10 @@ const Binance = require('./api/Binance/binance_api')
 const AlgoQueries = require('./Postgres/Queries/AlgoQueries')
 
 const ApiQueries = require('./Postgres/Queries/ApiQueries')
-const RoleQueries = require('./Postgres/Queries/RoleQueries')
 const FollowQueries = require('./Postgres/Queries/FollowQueries')
 const Bot = require ('./Postgres/Queries/BotQueries')
 const Bots = require('./routes/bot_routes')
-
+const Notifications = require('./routes/notification_routes')
 const Algos = require('./routes/algo_routes')
 const RebSched = require('./routes/rebalance_schedule')
 
@@ -54,14 +53,6 @@ module.exports = function(app){
 	//check if user is a coward
 	//app.post('/check_coward_exists', [json_encoding, originCheck, Google_JWT_Check], UserQueries.check_coward_exists)
 
-	//check if user is a pro
-	app.post('/check_account_role', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.check_account_role)
-	// email
-
-	app.post('/add_coward', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.add_coward)
-
-	app.post('/add_pro', [json_encoding, originCheck, Google_JWT_Check], RoleQueries.add_pro)
-
 	app.post('/add_algo', [json_encoding, originCheck, Google_JWT_Check], AlgoQueries.add_algo)
 
 	app.post('/get_user_algos', [json_encoding, originCheck, Google_JWT_Check], AlgoQueries.get_user_algos)
@@ -91,11 +82,13 @@ module.exports = function(app){
 
 	app.post('/remove_user_api', [json_encoding, originCheck, Google_JWT_Check], ApiQueries.remove_user_api)
 
-	app.get('/check_rebalancing', [json_encoding, originCheck, Google_JWT_Check], RebSched.check_rebalancing)
-
 	app.post('/get_rebalance_time', [json_encoding, originCheck, Google_JWT_Check], RebSched.get_rebalance_time)
 
 	app.post('/delete_algo', [json_encoding, originCheck, Google_JWT_Check], Algos.delete_algo)
+
+	app.post('/all_user_notifications', [json_encoding, originCheck, Google_JWT_Check], Notifications.all_user_notifications)
+
+	app.post('/mark_user_notifications', [json_encoding, originCheck, Google_JWT_Check], Notifications.mark_user_notifications)
 	// app.post('/pull_changes', [json_encoding, originCheck], EmailRoutes.pull_changes)
 	// app.post('/get_email', [json_encoding, originCheck], EmailRoutes.get_email)
 	// app.post('/get_threads', [json_encoding, originCheck], EmailRoutes.get_threads)

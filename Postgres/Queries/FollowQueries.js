@@ -24,20 +24,20 @@ exports.get_algo_follows = (req, res, next) => {
     const values = [info.algo_id]
     console.log(info.algo_id)
     const p = new Promise((res,rej) => {
-      const queryString = `SELECT * FROM follows
+      const queryString = `SELECT follows.user_id FROM follows
                               WHERE algo_id = $1`
       query(queryString, values, (err, results) => {
         if (err) {
           console.log(err)
           res.status(500).send(err)
         }
-        console.log('==========>')
-        console.log(results)
         res({
           message: 'Success',
-          followers: results.rows
+          followers: results.rows.map(row => {
+            return (row.user_id)
           })
         })
+      })
     })
     return p
 }
@@ -101,6 +101,29 @@ exports.delete_follows = (req, res, next) => {
       passed: true,
     })
   })
+}
+
+exports.delete_follow_algo = (user_id, algo_id) => {
+  const p = new Promise((res, rej) => {
+    console.log(user_id)
+    const values = [user_id, algo_id]
+    console.log('deactivate ^')
+    const queryString = `DELETE FROM follows
+                          WHERE user_id = $1
+                          AND algo_id = $2`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
 }
 
 exports.add_follows = (req, res, next) => {

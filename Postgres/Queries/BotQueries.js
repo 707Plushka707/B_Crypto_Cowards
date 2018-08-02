@@ -92,8 +92,29 @@ exports.remove_user_bot = (user_id) => {
     const values = [user_id]
     console.log('deactivate ^')
     const queryString = `DELETE FROM bots
-                          WHERE user_id = $1
-                          AND active = FALSE`
+                          WHERE user_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
+exports.delete_user_bot = (user_id) => {
+  const p = new Promise((res, rej) => {
+    console.log(user_id)
+    const values = [user_id]
+    console.log('deactivate ^')
+    const queryString = `DELETE FROM bots
+                          WHERE user_id = $1`
     query(queryString, values, (err, results) => {
       if (err) {
         console.log(err)
@@ -266,6 +287,29 @@ exports.get_bot_algos = () => {
   })
   return p
 }
+
+exports.get_users_by_algo = (req) => {
+  const info = req.body
+  const values = [info.algo_id]
+  const p = new Promise((res, rej) => {
+    const queryString = `SELECT bots.user_id FROM bots
+                          WHERE algo_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      res({
+        message: 'Success',
+        all_bots: results.rows.map(row => {
+          return (row.user_id)
+        })
+      })
+    })
+  })
+  return p
+}
+
 
 exports.set_updated_at = (botId) => {
   const p = new Promise((res, rej) => {
