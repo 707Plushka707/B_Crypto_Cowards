@@ -1,1 +1,1 @@
-docker build -t renthero_assistants_microservice .
+docker build -t cryptocowards_microservice .
