@@ -5,6 +5,12 @@ const fs = require('fs')
 const morgan = require('morgan')
 const router = require('./router')
 const cors = require('cors')
+const check_rebalancing = require('./server/rebalance_schedule').check_rebalancing
+// on startup run a timer
+setInterval(() => {
+  console.log('rebalancing')
+  check_rebalancing()
+}, 900000)
 
 const app = express()
 

@@ -18,6 +18,7 @@ const log_through = data => {
   // console.log(data)
   return data
 }
+const add_notification = require('./NotificationQueries').add_notification
 
 exports.retrieve_user_profile = (req, res, next) => {
   const info = req.body
@@ -34,6 +35,7 @@ exports.retrieve_user_profile = (req, res, next) => {
       console.log('0')
       return insert_user_profile(user_id, profile)
       .then((data) => {
+        add_notification({user_id: user_id, title: 'Welcome to CryptoCowards! To begin please submit your Binance API keys on the Settings page.'})
         return get_user_profile(user_id)
       })
       .then((data) => {
@@ -68,7 +70,7 @@ const get_user_profile = (user_id) => {
   const p = new Promise((res, rej) => {
     const values = [user_id]
 
-    const queryString = `SELECT user_id, first_name, last_name, email
+    const queryString = `SELECT user_id, first_name, last_name, email, pro
                            FROM users
                            WHERE users.user_id = $1`
     query(queryString, values, (err, results) => {

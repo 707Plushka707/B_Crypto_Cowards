@@ -97,6 +97,27 @@ exports.get_user_algos = (req, res, next) => {
     })
 }
 
+exports.delete_algo = (algo_id) => {
+  const p = new Promise((res, rej) => {
+    const values = [algo_id]
+    console.log('deactivate ^')
+    const queryString = `DELETE FROM algos
+                          WHERE algo_id = $1`
+    query(queryString, values, (err, results) => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+      }
+      console.log('==========>')
+      console.log(results)
+      res({
+        message: 'Success'
+      })
+    })
+  })
+  return p
+}
+
 
 exports.add_algo = (req, res, next) => {
   const info = req.body
