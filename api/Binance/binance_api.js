@@ -9,6 +9,7 @@ const moment = require('moment')
 
 const Binance = require('node-binance-api')
 
+
 exports.get_balance = function(req, res, next) {
   console.log('backhit')
   const info = req.body
