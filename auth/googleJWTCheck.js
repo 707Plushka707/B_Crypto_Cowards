@@ -14,8 +14,9 @@ function checkIfValidClientId(client_id) {
 exports.Google_JWT_Check = function(req, res, next){
  const p = new Promise((res, rej) => {
    const GOOGLE_ID_TOKEN = req.headers.jwt
+   console.log(req.headers)
    console.log('====================== GOOGLE_ID_TOKEN =====================')
-   // console.log(GOOGLE_ID_TOKEN)
+   console.log(GOOGLE_ID_TOKEN)
    const real = GOOGLE_ID_TOKEN.slice(1, GOOGLE_ID_TOKEN.length - 1)
    console.log(real)
    axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${real}`)
